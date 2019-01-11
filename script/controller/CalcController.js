@@ -2,151 +2,293 @@ class CalcController {
 
   constructor() {
 
-    this.initialize();
     this._calcDisplayEl = $('#display');
-    this._buttons = $('button');
+    this._novovo = $('#nove');
+    this._allButtons = $('button');
     this._operation = [];
-    this._buttonSelect = '';
-    this._lastOperator = '';
-    // this._addOperation = addOperation(this._buttonSelect);
+    // this._buttonSelect = '';
+    // this.percorre();
     this.initButtonsEvents();
-
-
-  }
-
-  initialize() {
-
-
-
-    // let bosta = this._buttons;
-    //  bosta.click(function(){
-    //   // bIndex = buttons.index(this);
-    //
-    //   this.;
-    //   // this.addOperation($(this).text());
-    //   // this._buttonSelect = ;
-    //   // this.setCalcDisplay($(this).text());
-
-    // });
-
-
+    //Retorna o ultimo numero digitado na calculadora
+    this._lastNumber = '';
+    this._lastOperator = '';
 
   }
 
-  initButtonsEvents(){
-
-    $('button').click( () => {
-      let txt = $(this).text();
-      this.addOperation(txt);
-      this.setCalcDisplay(txt);
-      // this._buttonSelect = $(this).index();
-      // event.this.addOperation(this._buttonSelect);
-      console.log(this._buttonSelect);
-      // this.merda();
-      // setCalcDisplay(txt);
-    });
-
-
-
-
-  };
-
-//  merda(){
-//   // $('button').eq(this._buttonSelect).click(function() {
-//     // this._buttonSelect = $(this).index();
-//     this.addOperation($('button').eq(this._buttonSelect).text());
-//     console.log(this._buttonSelect);
-//     // setCalcDisplay(txt);
-//   // });
-// }
-
-
-
-  // addEventsListenerAll(element, events, fn) {
-  //   //Cria uma array para os eventos que entraram no paramentro
-  //   //Cada elemento da array foi nomeado como event
-  //   events.split(' ').forEach(event => {
-  //     //Para cada elemento informado como parametro adiciona um evento e uma função
-  //     element.addEventListener(event, fn, false);
-  //   });
-  // }
-
-  //Metodo adiciona os eventos de mouse as teclas da calculadora
-  // initButtonsEvents() {
-  //   //Encontra todos os botões na DOM
-  //   let buttons = document.querySelectorAll("button");
-  //   //Percorre os botões na DOM
-  //   buttons.forEach((btn, index) => {
-  //     //Adiciona varios eventos aos botões com o metodo addEventsListenerAll
-  //     this.addEventsListener(btn, 'click', e => {
-  //       //Seleciona a classe do botão e retira a String 'btn-' e transforma em texto
-  //       // let textBtn = btn.className.baseVal.replace('btn-', '');
-  //       //Informa ao metodo execBtn 0 botão clicado
-  //       this.addOperation($(this).text());
-  //     });
-  //     // //Adiciona aos eventos de mouse a mudança do cursor para pointer
-  //     // this.addEventsListenerAll(btn, 'mouseover mouseup mousedown', e => {
-  //     //   btn.style.cursor = 'pointer'
-  //     // });
-  //
-  //   })
+  // getdisplay() {
   //
   // }
 
-  getCalcDisplay() {
-    return this._calcDisplayEl.text();
-
-  }
-
-  setCalcDisplay(value) {
+  setDisplay(value) {
     this._calcDisplayEl.text(value);
+    console.log('cons1');
+    console.log('O resultado da operação é '+value);
 
   }
 
+  initButtonsEvents() {
+    let _this = this
+    this._allButtons.click(function() {
+      // _this.setdisplay($(this).text());
+      _this.turnButtonInfo($(this).text())
+      console.log('cons2');
 
-  setLastOperator(value) {
-    for (var i = this._operation.length; i >= 0; i--) {
-      if (this.isOperator(this._operation[i])) {
-        this._lastOperator = value;
-        break;
+
+    });
+  }
+
+  turnButtonInfo(value) {
+
+    switch (value) {
+      case 'CE':
+      this.clearAll();
+      console.log('cons3');
+
+      break;
+      case 'C':
+      this.cancelEntry();
+      console.log('cons4');
+
+      break;
+      // case 'soma':
+      //   this.addOperation('+');
+      //   break;
+      // case 'subtracao':
+      //   this.addOperation('-');
+      //   break;
+      // case '÷':
+      //   this.addOperation('/');
+      //   break;
+      // case 'X':
+      //   this.addOperation('*');
+      //   break;
+      // case '%':
+      //   this.addOperation('%');
+      //   break;
+      // case '←':
+      //   this.addOperation('%');
+      //   break;
+      // case '√':
+      //   this.addOperation('%');
+      //   break;
+      // case 'x²':
+      //   this.addOperation('%');
+      //   break;
+      // case '¹/x':
+      //   this.addOperation('%');
+      //   break;
+      // case '=':
+      //   this.calc();
+      //   break;
+      case '.':
+      this.addDot();
+      break;
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '+':
+      case '-':
+
+      this.addOperation(value);
+      break;
+      console.log('cons5');
+
+      default:
+      // setError();
+
+    };
+  }
+
+  //Limpa a calculadora e retorna zero no display
+  clearAll() {
+    this._operation = [];
+
+    this._lastNumber = '0';
+    this.setDisplay(this._lastNumber);
+  }
+
+  //Exclui a ultima operação digitada e retorna no display
+  cancelEntry() {
+    this._operation.pop();
+    this.setLastNumberToDisplay();
+  }
+
+  //Grava no display o ultimo numero encontrado na array
+  setLastNumberToDisplay() {
+
+
+    let lastNumber = this.setOperator(false);
+    console.log('cons5');
+
+    // let lastNumber = this._lastNumber;
+
+    if (!lastNumber) lastNumber == 0;
+    console.log('cons6');
+
+
+    this.setDisplay(this._lastNumber);
+    console.log('cons7');
+    console.log('cons7' + this._lastNumber);
+
+
+  }
+
+  addOperation(value) {
+    if ((isNaN(this.getLastOperation()))) {
+      console.log('cons8');
+      console.log('o ultimo elemento da array não é um numero, é o operador: '+this._lastOperator );
+
+
+
+      this.setDisplay(value);
+      console.log('cons9 ' + value);
+
+
+      let isOperator = this.isOperator(value)
+      console.log('cons10 é operador? '+value);
+      console.log('cons10 é operador? '+this.setOperator(isOperator));
+      // console.log('cons10 é operador? '+this.pushOperation(value));
+
+      this.isOperator(value) ? this.setLastOperation(value) : this.pushOperation(value);
+      // console.log('cons11 é um operador ? '+ this.isOperator(value) + 'Se sim:' + this.setOperator(isOperator) + 'Se não:' + this.pushOperation(value) );
+      console.log('cons11 é um operador ? '+ this.isOperator(value) );
+
+
+    } else {
+      if (this.isOperator(value)) {
+      console.log('cons12');
+
+        this.setDisplay(value);
+        console.log('cons13');
+
+        this.pushOperation(value);
+        console.log('cons14');
+
+
+      } else {
+
+        let newValue = this.getLastOperation().toString() + value.toString();
+        console.log('cons15');
+
+        this.setLastOperation(newValue);
+        console.log('cons16');
+
+        this.setDisplay(newValue);
+        console.log('cons17');
+
       }
+
     }
+    // (isNaN(this.getLastOperation())) ? this._operation.push(value) : console.log('Não é numero');
+  }
+
+  calc() {
+
+
+
+    this._lastOperator = this._operation.pop();
+    console.log('cons18');
+
+
+    this._lastNumber =  this.getResult();
+    console.log('cons19');
+
+    this._operation = [this._lastNumber,this._lastOperator];
+    console.log('cons20');
+
+
+
+
+
+    this.setLastNumberToDisplay();
+    console.log('cons21');
+
+  }
+
+  getResult() {
+    try {
+      return eval(this._operation.join(''));
+      console.log('cons22');
+
+    } catch (e) {
+      setTimeout(() => {
+        this.setError();
+      }, 1);
+    }
+  }
+
+
+  pushOperation(value) {
+
+    this._operation.push(value);
+    console.log('cons23');
+
+    if (this._operation.length > 3) this.calc();
+    console.log('cons24' + value);
+
+
   }
 
   getLastOperation() {
 
-    return this._operation[this._operation.length - 1];
+    return this._operation[this._operation.length - 1]
+    console.log('cons25');
+
   }
 
-  addOperation(value) {
-    console.log('primeiro click '+value);
-    console.log('array primeiro click '+this._operation);
+  setLastOperation(value) {
 
+    this._operation[this._operation.length - 1] = value;
+    console.log('cons26');
 
-    if (isNaN(this.getLastOperation())) {
-
-      // (this.isOperator()) ? this.setLastOperator(value): this._operation.push(value);
-      console.log('teste operador '+value);
-      console.log('array teste operador '+this._operation);
-
-    } else {
-      let newValue = this.getLastOperation().string() + value.string();
-      console.log('teste construindo numeros '+value);
-      console.log('array construindo numeros  '+this._operation);
-    }
   }
+
 
   isOperator(value) {
-
     return (['+', '-', '*', '/', '%'].indexOf(value) > -1);
+    console.log('cons27');
 
+  }
+
+  setOperator(isOperation = true) {
+
+    let last = ''
+    console.log('cons28 last' + last);
+
+    for (let i = this._operation.length-1; i >= 0; i--) {
+
+      if (this.isOperator(this._operation[i]) == isOperation) {
+        console.log('cons29 é um operador? ');
+
+        last = this._operation[i];
+        console.log('cons30 o operador é? '+ last);
+
+
+
+        break;
+      }
+    }
+    if (!last) {
+      console.log('cons31');
+
+      last = (isOperation) ? this._lastOperator : this._lastNumber;
+
+      // this.pushOperation(value);
+    }
+
+
+    console.log('cons32'+last);
+
+    return last;
   }
 
 
 
-
-
-
-
-
-};
+}
