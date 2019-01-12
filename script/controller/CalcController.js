@@ -6,12 +6,14 @@ class CalcController {
     this._novovo = $('#nove');
     this._allButtons = $('button');
     this._operation = [];
+    this._maskOperation = ['+', '-', 'x', '÷', '%'];
     // this._buttonSelect = '';
     // this.percorre();
     this.initButtonsEvents();
     //Retorna o ultimo numero digitado na calculadora
     this._lastNumber = '';
     this._lastOperator = '';
+    this._result = '';
 
   }
 
@@ -20,7 +22,15 @@ class CalcController {
   // }
 
   setDisplay(value) {
-    this._calcDisplayEl.text(value);
+
+    if (this.isOperator(value)){
+
+      this._calcDisplayEl.text(this._maskOperation[this.indexOperator(value)]);
+
+    } else {
+
+      this._calcDisplayEl.text(value);
+    }
     console.log('cons1');
     console.log('O resultado da operação é '+value);
 
@@ -37,6 +47,8 @@ class CalcController {
     });
   }
 
+
+
   turnButtonInfo(value) {
 
     switch (value) {
@@ -48,26 +60,21 @@ class CalcController {
       case 'C':
       this.cancelEntry();
       console.log('cons4');
-
       break;
-      // case 'soma':
-      //   this.addOperation('+');
-      //   break;
-      // case 'subtracao':
-      //   this.addOperation('-');
-      //   break;
-      // case '÷':
-      //   this.addOperation('/');
-      //   break;
-      // case 'X':
-      //   this.addOperation('*');
-      //   break;
-      // case '%':
-      //   this.addOperation('%');
-      //   break;
-      // case '←':
-      //   this.addOperation('%');
-      //   break;
+
+      case '÷':
+        this.addOperation('/');
+        break;
+      case 'X':
+        this.addOperation('*');
+        break;
+        case '±':
+            this.changeNegative();
+          break;
+
+      case '←':
+        this.addOperation('backspace');
+        break;
       // case '√':
       //   this.addOperation('%');
       //   break;
@@ -77,9 +84,9 @@ class CalcController {
       // case '¹/x':
       //   this.addOperation('%');
       //   break;
-      // case '=':
-      //   this.calc();
-      //   break;
+      case '=':
+        this.calc();
+        break;
       case '.':
       this.addDot();
       break;
@@ -95,6 +102,7 @@ class CalcController {
       case '9':
       case '+':
       case '-':
+      case '%':
 
       this.addOperation(value);
       break;
@@ -106,16 +114,16 @@ class CalcController {
     };
   }
 
-  //Limpa a calculadora e retorna zero no display
-  clearAll() {
+  //Exclui a ultima operação digitada e retorna no display
+  cancelEntry() {
     this._operation = [];
 
     this._lastNumber = '0';
     this.setDisplay(this._lastNumber);
   }
 
-  //Exclui a ultima operação digitada e retorna no display
-  cancelEntry() {
+  //Limpa a calculadora e retorna zero no display
+  clearAll () {
     this._operation.pop();
     this.setLastNumberToDisplay();
   }
@@ -140,12 +148,38 @@ class CalcController {
 
   }
 
+  setLastNumber(isOperation = false) {
+
+    for (let i = this._operation.length-1; i >= 0; i--) {
+
+      if (this.isOperator(this._operation[i]) == isOperation) {
+        console.log('cons29 é um operador? ');
+
+        this._operation[i] = this._lastNumber;
+      break;
+      }
+    }
+
+  }
+
+  changeNegative() {
+
+    this._lastNumber = this.setOperator(false)*-1;
+
+    this.setLastNumber(false);
+
+    (this._lastNumber<0) ? this._lastOperator = '+' : this._lastOperator = '-';
+
+
+    this.setDisplay(this._lastNumber);
+    console.log('numberChanged '+ this._operation);
+
+  }
+
   addOperation(value) {
     if ((isNaN(this.getLastOperation()))) {
       console.log('cons8');
       console.log('o ultimo elemento da array não é um numero, é o operador: '+this._lastOperator );
-
-
 
       this.setDisplay(value);
       console.log('cons9 ' + value);
@@ -174,14 +208,28 @@ class CalcController {
 
       } else {
 
-        let newValue = this.getLastOperation().toString() + value.toString();
-        console.log('cons15');
+        let newValue ;
 
+        if (value != 'backspace') {
+
+          newValue = this.getLastOperation().toString() + value.toString();
+          console.log('cons15');
+
+        } else {
+
+          console.log('passou backspace');
+
+          newValue = this.getLastOperation().substring(0, this.getLastOperation().length -1);
+
+        }
+
+        if (newValue.length == 0) newValue = 0;
         this.setLastOperation(newValue);
         console.log('cons16');
 
         this.setDisplay(newValue);
         console.log('cons17');
+
 
       }
 
@@ -189,26 +237,42 @@ class CalcController {
     // (isNaN(this.getLastOperation())) ? this._operation.push(value) : console.log('Não é numero');
   }
 
+  getLastitens() {
+
+    this._lastOperator = this.setOperator(true);
+    this._lastNumber =  this.setOperator(false);
+
+  }
+
   calc() {
 
 
 
-    this._lastOperator = this._operation.pop();
-    console.log('cons18');
+    if (this._operation.length == 3) {
+      this.getLastitens();
+    } else if (this._operation.length < 3) {
+      this._operation.push(this._lastNumber);
+
+    } else if (this._lastOperator ='%') {
+      this._operation.pop();
+      this.getLastitens();
+      let firstNumber = this._operation[0];
+      let resultPercent = (this._lastNumber/100)*firstNumber;
+      this._operation = [firstNumber,this._lastOperator,resultPercent];
+      console.log('tab');
 
 
-    this._lastNumber =  this.getResult();
-    console.log('cons19');
+    } else {
+      this._lastOperator = this._operation.pop();
 
-    this._operation = [this._lastNumber,this._lastOperator];
-    console.log('cons20');
+    }
 
+    this._result =  this.getResult();
+    this._operation = [this._result,this._lastOperator];
 
-
-
-
-    this.setLastNumberToDisplay();
+    this.setDisplay(this._result);
     console.log('cons21');
+    console.log('tabela ' +this._operation);
 
   }
 
@@ -250,9 +314,14 @@ class CalcController {
 
   }
 
+  indexOperator(value) {
+
+    return ['+', '-', '*', '/', '%'].indexOf(value);
+
+  }
 
   isOperator(value) {
-    return (['+', '-', '*', '/', '%'].indexOf(value) > -1);
+    return (this.indexOperator(value) > -1);
     console.log('cons27');
 
   }
@@ -280,7 +349,6 @@ class CalcController {
 
       last = (isOperation) ? this._lastOperator : this._lastNumber;
 
-      // this.pushOperation(value);
     }
 
 
