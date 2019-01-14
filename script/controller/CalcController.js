@@ -292,12 +292,11 @@ class CalcController {
         }
       }
 
-    //Se for numero
+    //Se o valor digitado anteriormente não for um operador execulte os codigod abaixo
     } else {
 
-      //
-      if (this.isOperator(value)) {
 
+      if (this.isOperator(value)) {
 
         this.pushOperationSetDisplay(value);
 
@@ -339,9 +338,9 @@ class CalcController {
 
     this._lastOperator = this.setOperator(true);
     this._lastNumber = this.setOperator(false);
-
   }
 
+  //Execulta os calculos quando o botão '=' for acionado ou quando o quarto valor inclido na array for um operador
   calc() {
 
     this.getLastitens();
@@ -379,48 +378,52 @@ class CalcController {
 
   }
 
+  //Retorna o resuldo de um calculo
   getResult() {
     try {
+
       return eval(this._operation.join(''));
 
     } catch (e) {
+
       setTimeout(() => {
         this.setError();
       }, 1);
     }
   }
 
+  //Inclui uma operação na tabela
   pushOperation(value) {
 
     this._operation.push(value);
 
     if (this.isOperator(value)) {
+
       this._memoryCalc.push(this._maskOperation[this.indexOperator(value)])
+
     } else {
+
       this._memoryCalc.push(value);
     }
-    // this.setDisplayOne();
+
     this.setDisplay();
 
-
     if (this._operation.length > 3) this.calc();
-
-
   }
 
-
-
+  //Retorna o index de um operador na array
   indexOperator(value) {
 
     return ['+', '-', '*', '/', '%'].indexOf(value);
-
   }
 
+  //Verifica se a ultima operação digitada é um operador
   isOperator(value) {
-    return (this.indexOperator(value) > -1);
 
+    return (this.indexOperator(value) > -1);
   }
 
+  //Altera um operador
   setOperator(isOperation = true) {
 
     let last = ''
@@ -434,10 +437,10 @@ class CalcController {
         break;
       }
     }
+
     if (!last) {
 
       last = (isOperation) ? this._lastOperator : this._lastNumber;
-
     }
 
     return last;
@@ -445,56 +448,40 @@ class CalcController {
 
   //Metodo cola numeros coletados da area de transferência para a calculadora
   pasteFromClipboard() {
-    //Metodo captura o evendo 'paste' e
-    document.addEventListener('paste', e => {
-      //Grava em text todo todo o texto que se encontra em clipboardData.getData
-      let text = e.clipboardData.getData('Text');
-      //grava no display da calculadora os numeros (parseFloat) contidos em text
-      this.pushOperationSetDisplay(parseFloat(text));
-      // this.setLastOperationDisplay((text));
 
+    document.addEventListener('paste', e => {
+
+      let text = e.clipboardData.getData('Text');
+      this.pushOperationSetDisplay(parseFloat(text));
     });
   }
 
 
   //Copia os numeros da calculadora para area de transferencia
   copyToClipboard() {
-    //Cria um elemento input e grava na vareavel input na DOM
+
     let input = document.createElement('input');
-    //Determina que o valor de input será o que está em displayCalc
     input.value = this.getDisplay();
-    //Cria um elemento em body e adiciona o valor contido em input
     document.body.appendChild(input);
-    //Seleciona input para determinar que este elemento é o que será copiado
     input.select();
-    //Execulta o comando "Copy"
     document.execCommand("Copy");
-    //Remove input da DOM
     input.remove();
   }
 
+  //Metodo inclui o botão ponto e virgula
   addDot(value) {
-
-    // let lastOperation = this.getLastOperation();
 
     if (typeof this.getLastOperation() === 'string' && this.getLastOperation().split('').indexOf('.') > -1) return;
 
     if (this.isOperator(this.getLastOperation()) || !this.getLastOperation()) {
+
       this.pushOperation('0.');
+
     } else {
+
       this.setLastOperation(this.getLastOperation().toString() + '.');
     }
 
-    // text = parseInt(text);
-    // lastOperation = this.getLastOperation();
     this.setDisplay(this.getLastOperation());
-    // this.setDisplayOne();
-
-
-
   }
-
-
-
-
 }
